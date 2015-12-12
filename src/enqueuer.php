@@ -21,12 +21,6 @@ class enqueuer extends Facade {
 		return 'enqueuer'; 
 	}
 	
-	
-	private static function uksortScriptsCallback($a, $b)
-	{
-		
-	}
-	
 	private static function resolveDependencies()
 	{
 		$scripts = self::$scripts;
