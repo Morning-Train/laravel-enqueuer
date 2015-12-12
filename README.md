@@ -1,4 +1,4 @@
-# :package_name
+# enqueuer
 
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Software License][ico-license]](LICENSE.md)
@@ -7,24 +7,52 @@
 [![Quality Score][ico-code-quality]][link-code-quality]
 [![Total Downloads][ico-downloads]][link-downloads]
 
-**Note:** Replace ```:author_name``` ```:author_username``` ```:author_website``` ```:author_email``` ```:vendor``` ```:package_name``` ```:package_description``` with their correct values in [README.md](README.md), [CHANGELOG.md](CHANGELOG.md), [CONTRIBUTING.md](CONTRIBUTING.md), [LICENSE.md](LICENSE.md) and [composer.json](composer.json) files, then delete this line.
-
-This is where your description should go. Try and limit it to a paragraph or two, and maybe throw in a mention of what
-PSRs you support to avoid any confusion with users and contributors.
+Laravel package to enqueue css and js files for load. It supports dependencies, to serve files in the correct order. Caching included.
 
 ## Install
 
 Via Composer
 
 ``` bash
-$ composer require :vendor/:package_name
+$ composer require morningtrain/enqueuer
 ```
 
 ## Usage
 
+In all of the below cases, "Admin" can be any word and is used to group styles and scripts. 
+A common use case is to have different scripts in admin and frontend.
+
+To enqueue a script. 
+
 ``` php
-$skeleton = new League\Skeleton();
-echo $skeleton->echoPhrase('Hello, League!');
+
+//Called almost anywhere in the app
+Enqueuer::addAdminScript('jquery', [
+	'location' => 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'
+]);
+
+Enqueuer::addAdminScript('config', [
+	'content' => "var config = {'baseUrl':'".url('')."'};",
+	'dependencies' => ['jquery']
+]);
+```
+
+It is possible to exchange "Script" with "Style" in the above example.
+
+To include scripts in view
+
+``` php
+
+{!! Enqueuer::getAdminScripts() !!}
+
+```
+
+To include styles in view
+
+``` php
+
+{!! Enqueuer::getAdminStyles() !!}
+
 ```
 
 ## Change log
