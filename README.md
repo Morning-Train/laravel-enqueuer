@@ -12,7 +12,7 @@ Via Composer
 ``` bash
 $ composer require morningtrain/enqueuer
 ```
-Add this service provider to your config/app.php files
+Add this service provider to your config/app.php file.
 
 ``` php
 morningtrain\enqueuer\enqueuerServiceProvider::class,
@@ -66,11 +66,11 @@ If you discover any security related issues, please email mail@morningtrain.dk i
 
 ## Credits
 
-- [Morning-Train][link-author]
+- [Morning Train][link-author]
 
 ## License
 
 GNU General Public License v3.0. Please see [License File](LICENSE.md) for more information.
 
 [link-packagist]: https://packagist.org/packages/morningtrain/enqueuer
-[link-author]: https://github.com/Morning-Train
+[link-author]: https://morningtrain.dk
