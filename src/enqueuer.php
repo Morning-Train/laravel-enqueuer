@@ -38,26 +38,6 @@ class enqueuer extends Facade {
 	private static function addStyle($context, $identifier, $content, $direct = false)
 	{
 		self::add('styles', $context, $identifier, $content, $direct);
-	}	
-	
-	public static function addAdminScript($identifier, $content, $direct = false)
-	{
-		self::addScript('admin', $identifier, $content, $direct);
-	}
-	
-	public static function addPublicScript($identifier, $content, $direct = false)
-	{
-		self::addScript('public', $identifier, $content, $direct);
-	}
-	
-	public static function addAdminStyle($identifier, $content, $direct = false)
-	{
-		self::addStyle('admin', $identifier, $content, $direct);
-	}
-	
-	public static function addPublicStyle($identifier, $content, $direct = false)
-	{
-		self::addStyle('public', $identifier, $content, $direct);
 	}
 	
 	private static function clearCache($where)
@@ -75,7 +55,8 @@ class enqueuer extends Facade {
     private static function hasCache($where)
 	{
 		$files = \Storage::disk('public')->files('cache/'.$where);
-		if(is_array($files) && count($files) > 0){
+		if(is_array($files) && count($files) > 0)
+		{
             return true;
 		}        
         return false;
@@ -281,25 +262,39 @@ class enqueuer extends Facade {
 		echo $output;
 	}
 	
+	public static function __callStatic($name, $arguments)
+    {
 	
-	public static function getAdminScripts()
-	{
-		self::getScripts('admin');
-	}
-	
-	public static function getPublicScripts()
-	{
-		self::getScripts('public');
-	}
-	
-	public static function getAdminStyles()
-	{
-		self::getStyles('admin');
-	}
-	
-	public static function getPublicStyles()
-	{
-		self::getStyles('public');
-	}
-	
+		if(count($arguments) == 2)
+		{
+			$arguments[] = false;
+		}
+
+		preg_match("/(?<=add).*?(?=Script)/", $name, $addScriptMatches);
+		if(!empty($addScriptMatches))
+		{
+			return self::addScript(strtolower($addScriptMatches[0]), $arguments[0], $arguments[1], $arguments[2]);
+		}
+		
+		preg_match("/(?<=add).*?(?=Style)/", $name, $addStyleMatches);
+		if(!empty($addStyleMatches))
+		{
+			return self::addStyle(strtolower($addStyleMatches[0]), $arguments[0], $arguments[1], $arguments[2]);
+		}
+		
+		preg_match("/(?<=get).*?(?=Scripts)/", $name, $getScriptsMatches);
+		if(!empty($getScriptsMatches))
+		{
+			return self::getScripts(strtolower($getScriptsMatches[0]));
+		}
+		
+		preg_match("/(?<=get).*?(?=Styles)/", $name, $getStylesMatches);
+		if(!empty($getStylesMatches))
+		{
+			return self::getStyles(strtolower($getStylesMatches[0]));
+		}
+		
+		return null;
+    }
+
 }
