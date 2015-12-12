@@ -55,10 +55,6 @@ To include styles in view
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
 
-## Contributing
-
-Please see [CONTRIBUTING](CONTRIBUTING.md) and [CONDUCT](CONDUCT.md) for details.
-
 ## Security
 
 If you discover any security related issues, please email mail@morningtrain.dk instead of using the issue tracker.

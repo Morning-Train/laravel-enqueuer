@@ -1,20 +1,9 @@
 # Changelog
 
-All Notable changes to `:package_name` will be documented in this file
+All Notable changes to `enqueuer` will be documented in this file
 
-## NEXT - YYYY-MM-DD
+## 1.0.0 - 2015-12-12
 
 ### Added
-- Nothing
-
-### Deprecated
-- Nothing
-
-### Fixed
-- Nothing
-
-### Removed
-- Nothing
-
-### Security
-- Nothing
+- Using PHP magic methods to add and get style/scripts for a namespace.
+- Added support for dependencies
