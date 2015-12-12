@@ -1,6 +1,6 @@
 {
     "name": "morningtrain/enqueuer",
-    "description": ":package_description",
+    "description": "Laravel package to enqueue css and js files for load. It supports dependencies, to serve files in the correct order. Caching included.",
     "keywords": [
         "morningtrain",
         "enqueuer"
