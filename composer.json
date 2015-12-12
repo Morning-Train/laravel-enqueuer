@@ -9,9 +9,9 @@
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": ":author_email",
-            "homepage": ":author_website",
+            "name": "Bjarne Bonde",
+            "email": "bb@morningtrain.dk",
+            "homepage": "https://morningtrain.dk",
             "role": "Developer"
         }
     ],

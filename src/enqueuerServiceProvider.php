@@ -13,7 +13,19 @@ class enqueuerServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+	
+		//Add the public disk for storing the scripts and styles cache
+		$this->app['config']["filesystems.disks.public"] = [
+			'driver' => 'local',
+			'root'   => public_path(),
+		];
+	
+		//Include the enqueuer class
+		require_once 'enqueuer.php';
+	
+		//Add alias for the enqueuer facade.
+        $loader = \Illuminate\Foundation\AliasLoader::getInstance();
+		$loader->alias('Enqueuer', '\morningtrain\enqueuer');
     }
 
     /**
@@ -22,7 +34,7 @@ class enqueuerServiceProvider extends ServiceProvider
      * @return void
      */
     public function register()
-    {
-        //
+    {	
+		
     }
 }

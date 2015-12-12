@@ -1,4 +1,5 @@
 <?php
+namespace morningtrain;
 
 use Illuminate\Support\Facades\Facade;
 
