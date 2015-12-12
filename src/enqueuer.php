@@ -71,7 +71,7 @@ class enqueuer extends Facade {
 		}
 		self::$styles = $styles;
 	}
-	
+
 	private static function add($what, $context, $identifier, $arguments)
 	{
 		if(!isset(self::${$what}[$context]))
