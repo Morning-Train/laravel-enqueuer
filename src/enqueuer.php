@@ -21,23 +21,81 @@ class enqueuer extends Facade {
 		return 'enqueuer'; 
 	}
 	
-	private static function add($what, $context, $identifier, $content, $direct = false)
+	
+	private static function uksortScriptsCallback($a, $b)
+	{
+		
+	}
+	
+	private static function resolveDependencies()
+	{
+		$scripts = self::$scripts;
+		foreach($scripts as $context => $scriptsList)
+		{
+			uksort($scriptsList, function($a, $b) use ($scriptsList){
+				if(isset($scriptsList[$b]['dependencies']) && is_array($scriptsList[$b]['dependencies']))
+				{
+					if(in_array($a, $scriptsList[$b]['dependencies']))
+					{
+						return -1;
+					}
+				}
+				if(isset($scriptsList[$a]['dependencies']) && is_array($scriptsList[$a]['dependencies']))
+				{
+					if(in_array($b, $scriptsList[$a]['dependencies']))
+					{
+						return 1;
+					}
+				}
+				return 0;
+			});
+			$scripts[$context] = $scriptsList;
+		}
+		self::$scripts = $scripts;
+		
+		$styles = self::$styles;
+		foreach($styles as $context => $stylesList)
+		{
+			uksort($stylesList, function($a, $b) use ($stylesList){
+				if(isset($stylesList[$b]['dependencies']) && is_array($stylesList[$b]['dependencies']))
+				{
+					if(in_array($a, $stylesList[$b]['dependencies']))
+					{
+						return -1;
+					}
+				}
+				if(isset($stylesList[$a]['dependencies']) && is_array($stylesList[$a]['dependencies']))
+				{
+					if(in_array($b, $stylesList[$a]['dependencies']))
+					{
+						return 1;
+					}
+				}
+				return 0;
+			});
+			$styles[$context] = $stylesList;
+		}
+		self::$styles = $styles;
+	}
+	
+	private static function add($what, $context, $identifier, $arguments)
 	{
 		if(!isset(self::${$what}[$context]))
 		{
 			self::${$what}[$context] = array();
 		}
-		self::${$what}[$context][$identifier] = array('content' => $content, 'direct' => $direct);
+		self::${$what}[$context][$identifier] = $arguments;
+		self::resolveDependencies();
 	}
 	
-	private static function addScript($context, $identifier, $content, $direct = false)
+	private static function addScript($context, $identifier, $arguments)
 	{
-		self::add('scripts', $context, $identifier, $content, $direct);
+		self::add('scripts', $context, $identifier, $arguments);
 	}
 	
-	private static function addStyle($context, $identifier, $content, $direct = false)
+	private static function addStyle($context, $identifier, $arguments)
 	{
-		self::add('styles', $context, $identifier, $content, $direct);
+		self::add('styles', $context, $identifier, $arguments);
 	}
 	
 	private static function clearCache($where)
@@ -114,18 +172,10 @@ class enqueuer extends Facade {
 	private static function generateBufferForStyles($files)
 	{
 		$buffer = "";
-		$content = "";
 		
 		foreach ($files as $file) 
 		{
-			if(!$file['direct'])
-			{
-				$content .= file_get_contents($file['content']);
-			}
-			else 
-			{
-				$content .= $file['content'];
-			}
+            $content = self::getContentForEntity($file);
             $buffer .= self::minifyJs($content);
 		}
 		
@@ -133,8 +183,7 @@ class enqueuer extends Facade {
 	}
     
     private static function minifyCss($buffer)
-	{
-        
+	{        
 		// Remove comments
 		$buffer = preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $buffer);
 
@@ -149,32 +198,35 @@ class enqueuer extends Facade {
     
     private static function minifyJs($buffer)
 	{
-        
         // Remove comments
 		$buffer = preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $buffer);
-
+		
         return $buffer;
     }
+	
+	private static function getContentForEntity($entity)
+	{
+		$content = '';
+		if(isset($entity['content']))
+		{
+			$content = $entity['content'];
+		}
+		else if(isset($entity['location']))
+		{
+			$content = file_get_contents($entity['location']);
+		}
+		return $content;
+	}
 	
 	private static function generateBufferForScripts($files)
 	{
 		$buffer = "";
 		foreach ($files as $file) 
 		{
-            $content = '';
-			if(!$file['direct'])
-			{
-				$content = file_get_contents($file['content']);
-			} 
-			else 
-			{
-				$content = $file['content'];
-			} 
+            $content = self::getContentForEntity($file);
             $buffer .= self::minifyJs($content);
             $buffer .= ';'.PHP_EOL;
 		}
-        
-
 		return $buffer;
 	}
 	
@@ -233,13 +285,13 @@ class enqueuer extends Facade {
 				{
 					foreach($scripts as $script)
 					{
-						if($script['direct'])
+						if(isset($script['content']))
 						{
 							$output .= '<script>'.$script['content'].'</script>';	
-						} 
-						else 
+						}
+						if(isset($script['location']))
 						{
-							$output .= '<script src="'.$script['content'].'"></script>';	
+							$output .= '<script src="'.$script['location'].'"></script>';
 						}
 					}
 				}
@@ -270,19 +322,20 @@ class enqueuer extends Facade {
                     $cachedStylesheetName = self::getStylesCache($context);
                 }                	
    				$output .= '<link rel="stylesheet" href="'.url($cachedStylesheetName).'">';
-			} else 
+			} 
+			else 
 			{
 				if(!empty($styles))
 				{
 					foreach($styles as $style)
 					{
-						if($style['direct'])
+						if(isset($script['content']))
 						{
 							$output .= '<style>'.$style['content'].'</style>';
 						}
-						else
+						if(isset($script['location']))
 						{
-							$output .= '<link rel="stylesheet" href="'.$style['content'].'">';	
+							$output .= '<link rel="stylesheet" href="'.$style['location'].'">';
 						}
 					}
 				}
@@ -294,21 +347,16 @@ class enqueuer extends Facade {
 	public static function __callStatic($name, $arguments)
     {
 	
-		if(count($arguments) == 2)
-		{
-			$arguments[] = false;
-		}
-
 		preg_match("/(?<=add).*?(?=Script)/", $name, $addScriptMatches);
 		if(!empty($addScriptMatches))
 		{
-			return self::addScript(strtolower($addScriptMatches[0]), $arguments[0], $arguments[1], $arguments[2]);
+			return self::addScript(strtolower($addScriptMatches[0]), $arguments[0], $arguments[1]);
 		}
 		
 		preg_match("/(?<=add).*?(?=Style)/", $name, $addStyleMatches);
 		if(!empty($addStyleMatches))
 		{
-			return self::addStyle(strtolower($addStyleMatches[0]), $arguments[0], $arguments[1], $arguments[2]);
+			return self::addStyle(strtolower($addStyleMatches[0]), $arguments[0], $arguments[1]);
 		}
 		
 		preg_match("/(?<=get).*?(?=Scripts)/", $name, $getScriptsMatches);
