@@ -26,7 +26,6 @@ To enqueue a script.
 
 ``` php
 
-//Called almost anywhere in the app
 Enqueuer::addAdminScript('jquery', [
 	'location' => 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'
 ]);
@@ -35,6 +34,7 @@ Enqueuer::addAdminScript('config', [
 	'content' => "var config = {'baseUrl':'".url('')."'};",
 	'dependencies' => ['jquery']
 ]);
+
 ```
 
 It is possible to exchange "Script" with "Style" in the above example.
@@ -59,23 +59,17 @@ To include styles in view
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
 
-## Testing
-
-``` bash
-$ composer test
-```
-
 ## Contributing
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) and [CONDUCT](CONDUCT.md) for details.
 
 ## Security
 
-If you discover any security related issues, please email :author_email instead of using the issue tracker.
+If you discover any security related issues, please email bb@morningtrain.dk instead of using the issue tracker.
 
 ## Credits
 
-- [:author_name][link-author]
+- [Morning-Train][link-author]
 - [All Contributors][link-contributors]
 
 ## License
