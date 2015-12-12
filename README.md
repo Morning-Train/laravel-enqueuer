@@ -12,6 +12,11 @@ Via Composer
 ``` bash
 $ composer require morningtrain/enqueuer
 ```
+Add this service provider to your config/app.php files
+
+``` php
+morningtrain\enqueuer\enqueuerServiceProvider::class,
+```
 
 ## Usage
 
