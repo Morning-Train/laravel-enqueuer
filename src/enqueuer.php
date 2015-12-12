@@ -42,12 +42,20 @@ class enqueuer extends Facade {
 	
 	private static function clearCache($where)
 	{
-		$files = \Storage::disk('public')->files('cache/'.$where);
+		$files = \Storage::disk('public')->allFiles('cache/'.$where);
 		if(is_array($files) && count($files) > 0)
 		{
 			foreach($files as $file)
 			{
 				\Storage::disk('public')->delete($file);
+			}
+		}
+		$dirs = \Storage::disk('public')->allDirectories('cache/'.$where);
+		if(is_array($dirs) && count($dirs) > 0)
+		{
+			foreach($dirs as $dir)
+			{
+				\Storage::disk('public')->deleteDirectory($dir);
 			}
 		}
 	}
@@ -60,16 +68,6 @@ class enqueuer extends Facade {
             return true;
 		}        
         return false;
-    }
-	
-    private static function hasStylesCache($context)
-	{
-        return self::hasCache('styles/'.$context);
-    }
-	
-    private static function hasScriptsCache($context)
-	{
-        return self::hasCache('scripts/'.$context);
     }
     
     private static function getCache($where)
@@ -94,20 +92,18 @@ class enqueuer extends Facade {
     
     public static function clearAllCache()
 	{
-        self::clearScriptsCache('public');
-        self::clearStylesCache('public');
-        self::clearScriptsCache('admin');
-        self::clearStylesCache('admin');
+        self::clearScriptsCache();
+        self::clearStylesCache();
     }
     
-	private static function clearScriptsCache($context)
+	private static function clearScriptsCache()
 	{
-		self::clearCache('scripts/'.$context);
+		self::clearCache('scripts');
 	}
 	
-	private static function clearStylesCache($context)
+	private static function clearStylesCache()
 	{
-		self::clearCache('styles/'.$context);
+		self::clearCache('styles');
 	}
 	
 	private static function cacheFile($name, $content)
@@ -118,19 +114,27 @@ class enqueuer extends Facade {
 	private static function generateBufferForStyles($files)
 	{
 		$buffer = "";
+		$content = "";
 		
 		foreach ($files as $file) 
 		{
 			if(!$file['direct'])
 			{
-				$buffer .= file_get_contents($file['content']);
+				$content .= file_get_contents($file['content']);
 			}
 			else 
 			{
-				$buffer .= $file['content'];
+				$content .= $file['content'];
 			}
+            $buffer .= self::minifyJs($content);
 		}
-
+		
+		return $buffer;
+	}
+    
+    private static function minifyCss($buffer)
+	{
+        
 		// Remove comments
 		$buffer = preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $buffer);
 
@@ -139,9 +143,9 @@ class enqueuer extends Facade {
 
 		// Remove whitespace
 		$buffer = str_replace(array("\r\n", "\r", "\n", "\t", '  ', '    ', '    '), '', $buffer);
-		
-		return $buffer;
-	}
+
+        return $buffer;
+    }
     
     private static function minifyJs($buffer)
 	{
@@ -174,16 +178,42 @@ class enqueuer extends Facade {
 		return $buffer;
 	}
 	
+	private static function useCache($type)
+	{
+		if($type == 'styles')
+		{
+			return self::$cacheStyles || (self::$alwaysGenerateStylesCache && $hasCache);
+		}
+		if($type == 'scripts')
+		{
+			return self::$cacheScripts || (self::$alwaysGenerateScriptsCache && $hasCache);
+		}
+		return false;
+	}
+	
+	private static function shouldCacheBeGenerated($type, $context)
+	{
+		$hasCache = self::hasCache($type, $context);
+		if($type == 'styles')
+		{
+			return self::$alwaysGenerateStylesCache || (!self::$alwaysGenerateStylesCache && !$hasCache);
+		}
+		if($type == 'scripts')
+		{
+			return self::$alwaysGenerateScriptsCache || (!self::$alwaysGenerateScriptsCache && !$hasCache);
+		}
+		return false;
+	}
+	
 	private static function getScripts($context)
 	{
 		$output = '';
 		if(isset(self::$scripts[$context]))
 		{
 			$scripts = self::$scripts[$context];
-            $hasCache = self::hasScriptsCache($context);
-			if(self::$cacheScripts || (self::$alwaysGenerateScriptsCache && $hasCache))
+			if(self::useCache('scripts'))
 			{
-                if(self::$alwaysGenerateScriptsCache || (!self::$alwaysGenerateScriptsCache && !$hasCache))
+                if(self::shouldCacheBeGenerated('scripts', $context))
 				{
     				$buffer = self::generateBufferForScripts($scripts);
     				self::clearScriptsCache($context);
@@ -225,10 +255,9 @@ class enqueuer extends Facade {
 		if(isset(self::$styles[$context]))
 		{
 			$styles = self::$styles[$context];
-            $hasCache = self::hasStylesCache($context);
-			if(self::$cacheStyles || (self::$alwaysGenerateStylesCache && $hasCache))
+			if(self::useCache('styles'))
 			{
-                if(self::$alwaysGenerateStylesCache || (!self::$alwaysGenerateStylesCache && !$hasCache))
+                if(self::shouldCacheBeGenerated('styles', $context))
 				{
     				$buffer = self::generateBufferForStyles($styles);
     				self::clearStylesCache($context);
