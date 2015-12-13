@@ -23,7 +23,7 @@ morningtrain\enqueuer\enqueuerServiceProvider::class,
 In all of the below cases, "Admin" can be any word and is used to group styles and scripts. 
 A common use case is to have different scripts in admin and frontend.
 
-To enqueue a script. 
+### To enqueue a script or style
 
 ``` php
 
@@ -31,14 +31,54 @@ Enqueuer::addAdminScript('jquery', [
 	'location' => 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'
 ]);
 
-Enqueuer::addAdminScript('config', [
-	'content' => "var config = {'baseUrl':'".url('')."'};",
+Enqueuer::addAdminScript('sample', [
+	'content' => "console.log('sample');",
 	'dependencies' => ['jquery']
 ]);
 
 ```
 
-It is possible to exchange "Script" with "Style" in the above example.
+The syntax for adding styles and scripts are almost the same. The main difference is that you would call "addAdminStyle" in the above example instead.
+In addition, note that it is not possible to use the data property with styles.
+
+### Script dependencies
+
+Some scripts and styles might be dependent on others. To solve this, one can add the dependencies property.
+The value of this property is an array that contains the names of all the script/styles it is dependent on.
+The scripts/styles will be sorted according to the dependencies.
+
+``` php
+
+Enqueuer::addAdminScript('sample', [
+	'content' => "console.log('sample');",
+	'dependencies' => ['jquery']
+]);
+
+Enqueuer::addAdminScript('jquery', [
+	'location' => 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'
+]);
+
+```
+
+### Pass PHP data to script
+
+It is possible to pass on a data object to a script by including the data properties.
+
+The value of data is an array containing the name of the object and the properties.
+
+``` php
+Enqueuer::addProfileScript('config_test', [
+	'content' => "console.log(config.baseUrl);",
+	'data' => [
+		'object' => 'config',
+		'properties' => [
+			'baseUrl' => url('')
+		]
+	]
+]);
+```
+
+### Including script and styles in views
 
 To include scripts in view
 
@@ -55,6 +95,33 @@ To include styles in view
 {!! Enqueuer::getAdminStyles() !!}
 
 ```
+
+### Cache control
+
+#### Clear all caches
+
+Clear everything
+``` php
+
+Enqueuer::clearAllCache();
+
+```
+
+To clear all caches for scripts
+``` php
+
+Enqueuer::clearScriptsCache();
+
+```
+
+To clear all caches for styles
+``` php
+
+Enqueuer::clearStylesCache();
+
+```
+
+
 
 ## Change log
 

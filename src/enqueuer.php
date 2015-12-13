@@ -84,6 +84,15 @@ class enqueuer extends Facade {
 	
 	private static function addScript($context, $identifier, $arguments)
 	{
+		if(isset($arguments['data']) && isset($arguments['data']['object']) && isset($arguments['data']['properties']) && !empty($arguments['data']['object']) && !empty($arguments['data']['properties']))
+		{
+			$content = 'var '.$arguments['data']['object'].' = '.json_encode($arguments['data']['properties']).';'.PHP_EOL;
+			if(!isset($arguments['content']))
+			{
+				$arguments['content'] = '';
+			}
+			$arguments['content'] = $content . $arguments['content'];
+		}
 		self::add('scripts', $context, $identifier, $arguments);
 	}
 	
@@ -148,12 +157,12 @@ class enqueuer extends Facade {
         self::clearStylesCache();
     }
     
-	private static function clearScriptsCache()
+	public static function clearScriptsCache()
 	{
 		self::clearCache('scripts');
 	}
 	
-	private static function clearStylesCache()
+	public static function clearStylesCache()
 	{
 		self::clearCache('styles');
 	}
@@ -203,11 +212,11 @@ class enqueuer extends Facade {
 		$content = '';
 		if(isset($entity['content']))
 		{
-			$content = $entity['content'];
+			$content .= $entity['content'].PHP_EOL;
 		}
-		else if(isset($entity['location']))
+		if(isset($entity['location']))
 		{
-			$content = file_get_contents($entity['location']);
+			$content .= file_get_contents($entity['location']).PHP_EOL;
 		}
 		return $content;
 	}
@@ -257,6 +266,7 @@ class enqueuer extends Facade {
 		if(isset(self::$scripts[$context]))
 		{
 			$scripts = self::$scripts[$context];
+			dd($scripts);
 			if(self::useCache('scripts'))
 			{
                 if(self::shouldCacheBeGenerated('scripts', $context))
