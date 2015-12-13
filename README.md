@@ -121,6 +121,20 @@ Enqueuer::clearStylesCache();
 
 ```
 
+To clear all caches for scripts in group (admin in this case)
+``` php
+
+Enqueuer::clearAdminScriptsCache();
+
+```
+
+To clear all caches for styles in group (admin in this case)
+``` php
+
+Enqueuer::clearAdminStylesCache();
+
+```
+
 
 
 ## Change log

@@ -164,15 +164,25 @@ class enqueuer extends Facade {
 	{
 		self::clearCache('scripts');
 	}
+    
+	public static function clearScriptsCacheForContext($context)
+	{
+		self::clearCache('scripts/'.$context);
+	}
 	
 	public static function clearStylesCache()
 	{
 		self::clearCache('styles');
 	}
+    
+	public static function clearStylesCacheForContext($context)
+	{
+		self::clearCache('styles/'.$context);
+	}
 	
 	private static function cacheFile($name, $content)
 	{
-		\Storage::disk('public')->put($name, $content);
+		$check = \Storage::disk('public')->put($name, $content);
 	}
 	
 	private static function generateBufferForStyles($files)
@@ -266,7 +276,6 @@ class enqueuer extends Facade {
 	private static function getScripts($context)
 	{
 		self::resolveScriptDependencies();
-	dd(self::$scripts);
 		$output = '';
 		if(isset(self::$scripts[$context]))
 		{
@@ -276,7 +285,7 @@ class enqueuer extends Facade {
                 if(self::shouldCacheBeGenerated('scripts', $context))
 				{
     				$buffer = self::generateBufferForScripts($scripts);
-    				self::clearScriptsCache($context);
+    				self::clearScriptsCacheForContext($context);
     				$cachedScriptName = uniqid().'.js';
     				$cachedScriptName = 'cache/scripts/'.$context.'/'.$cachedScriptName;
     				self::cacheFile($cachedScriptName, $buffer);
@@ -356,31 +365,43 @@ class enqueuer extends Facade {
 	public static function __callStatic($name, $arguments)
     {
 	
-		preg_match("/(?<=add).*?(?=Script)/", $name, $addScriptMatches);
-		if(!empty($addScriptMatches))
+		preg_match("/(?<=add).*?(?=Script)/", $name, $matches);
+		if(!empty($matches))
 		{
-			return self::addScript(strtolower($addScriptMatches[0]), $arguments[0], $arguments[1]);
+			return self::addScript(strtolower($matches[0]), $arguments[0], $arguments[1]);
 		}
 		
-		preg_match("/(?<=add).*?(?=Style)/", $name, $addStyleMatches);
-		if(!empty($addStyleMatches))
+		preg_match("/(?<=add).*?(?=Style)/", $name, $matches);
+		if(!empty($matches))
 		{
-			return self::addStyle(strtolower($addStyleMatches[0]), $arguments[0], $arguments[1]);
+			return self::addStyle(strtolower($matches[0]), $arguments[0], $arguments[1]);
 		}
 		
-		preg_match("/(?<=get).*?(?=Scripts)/", $name, $getScriptsMatches);
-		if(!empty($getScriptsMatches))
+		preg_match("/(?<=get).*?(?=Scripts)/", $name, $matches);
+		if(!empty($matches))
 		{
-			return self::getScripts(strtolower($getScriptsMatches[0]));
+			return self::getScripts(strtolower($matches[0]));
 		}
 		
-		preg_match("/(?<=get).*?(?=Styles)/", $name, $getStylesMatches);
-		if(!empty($getStylesMatches))
+		preg_match("/(?<=get).*?(?=Styles)/", $name, $matches);
+		if(!empty($matches))
 		{
-			return self::getStyles(strtolower($getStylesMatches[0]));
+			return self::getStyles(strtolower($matches[0]));
 		}
 		
-		return null;
+		preg_match("/(?<=clear).*?(?=ScriptsCache)/", $name, $matches);
+		if(!empty($matches))
+		{
+			return self::clearScriptsCacheForContext(strtolower($matches[0]));
+		}
+		
+		preg_match("/(?<=clear).*?(?=StylesCache)/", $name, $matches);
+		if(!empty($matches))
+		{
+			return self::clearStylesCacheForContext(strtolower($matches[0]));
+		}
+		
+		throw new \Symfony\Component\HttpKernel\Exception\NotFoundHttpException('Unknown method: '.$name);
     }
 
 }
