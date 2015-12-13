@@ -21,53 +21,57 @@ class enqueuer extends Facade {
 		return 'enqueuer'; 
 	}
 	
-	private static function resolveDependencies()
+	private static function getRelativeDependencyOrder($list, $a, $b)
+	{
+		if(isset($list[$b]['dependencies']) && is_array($list[$b]['dependencies']))
+		{
+			if(in_array($a, $list[$b]['dependencies']))
+			{
+				return -1;
+			}
+		}
+		if(isset($list[$a]['dependencies']) && is_array($list[$a]['dependencies']))
+		{
+			if(in_array($b, $list[$a]['dependencies']))
+			{
+				return 1;
+			}
+		}
+		return 0;
+	}
+	
+	private static function resolveDependencies($list)
+	{
+		uksort($list, function($a, $b) use ($list){
+			return self::getRelativeDependencyOrder($list, $a, $b);
+		});
+		uksort($list, function($a, $b) use ($list){
+			return self::getRelativeDependencyOrder($list, $a, $b);
+		});
+		uksort($list, function($a, $b) use ($list){
+			return self::getRelativeDependencyOrder($list, $a, $b);
+		});
+		return $list;
+	}
+	
+	private static function resolveScriptDependencies()
 	{
 		$scripts = self::$scripts;
-		foreach($scripts as $context => $scriptsList)
+		foreach($scripts as $context => $list)
 		{
-			uksort($scriptsList, function($a, $b) use ($scriptsList){
-				if(isset($scriptsList[$b]['dependencies']) && is_array($scriptsList[$b]['dependencies']))
-				{
-					if(in_array($a, $scriptsList[$b]['dependencies']))
-					{
-						return -1;
-					}
-				}
-				if(isset($scriptsList[$a]['dependencies']) && is_array($scriptsList[$a]['dependencies']))
-				{
-					if(in_array($b, $scriptsList[$a]['dependencies']))
-					{
-						return 1;
-					}
-				}
-				return 0;
-			});
-			$scripts[$context] = $scriptsList;
+			$list = self::resolveDependencies($list);
+			$scripts[$context] = $list;
 		}
 		self::$scripts = $scripts;
-		
+	}
+	
+	private static function resolveStyleDependencies()
+	{
 		$styles = self::$styles;
-		foreach($styles as $context => $stylesList)
+		foreach($styles as $context => $scriptsList)
 		{
-			uksort($stylesList, function($a, $b) use ($stylesList){
-				if(isset($stylesList[$b]['dependencies']) && is_array($stylesList[$b]['dependencies']))
-				{
-					if(in_array($a, $stylesList[$b]['dependencies']))
-					{
-						return -1;
-					}
-				}
-				if(isset($stylesList[$a]['dependencies']) && is_array($stylesList[$a]['dependencies']))
-				{
-					if(in_array($b, $stylesList[$a]['dependencies']))
-					{
-						return 1;
-					}
-				}
-				return 0;
-			});
-			$styles[$context] = $stylesList;
+			$list = self::resolveDependencies($list);
+			$styles[$context] = $scriptsList;
 		}
 		self::$styles = $styles;
 	}
@@ -79,7 +83,6 @@ class enqueuer extends Facade {
 			self::${$what}[$context] = array();
 		}
 		self::${$what}[$context][$identifier] = $arguments;
-		self::resolveDependencies();
 	}
 	
 	private static function addScript($context, $identifier, $arguments)
@@ -262,11 +265,12 @@ class enqueuer extends Facade {
 	
 	private static function getScripts($context)
 	{
+		self::resolveScriptDependencies();
+	dd(self::$scripts);
 		$output = '';
 		if(isset(self::$scripts[$context]))
 		{
 			$scripts = self::$scripts[$context];
-			dd($scripts);
 			if(self::useCache('scripts'))
 			{
                 if(self::shouldCacheBeGenerated('scripts', $context))
@@ -307,6 +311,7 @@ class enqueuer extends Facade {
 	
 	private static function getStyles($context)
 	{
+		self::resolveStyleDependencies();
 		$output = '';
 		if(isset(self::$styles[$context]))
 		{
