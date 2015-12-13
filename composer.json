@@ -6,7 +6,7 @@
         "enqueuer"
     ],
     "homepage": "https://github.com/morningtrain/laravel-enqueuer",
-    "license": "MIT",
+    "license": "GNU GPL v3.0",
     "authors": [
         {
             "name": "Bjarne Bonde",
@@ -27,14 +27,6 @@
         "psr-4": {
             "morningtrain\\enqueuer\\": "src"
         }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "morningtrain\\enqueuer\\Test\\": "tests"
-        }
-    },
-    "scripts": {
-        "test": "phpunit"
     },
     "extra": {
         "branch-alias": {
