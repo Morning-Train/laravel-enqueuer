@@ -2,6 +2,12 @@
 
 All Notable changes to `enqueuer` will be documented in this file
 
+## 1.2.0 - 2015-12-13
+
+### Added
+- Fixed some bugs
+- Added static method to allow the configuring of options
+
 ## 1.1.0 - 2015-12-13
 
 ### Added

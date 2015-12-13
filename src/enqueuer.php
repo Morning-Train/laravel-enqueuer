@@ -3,9 +3,8 @@ namespace morningtrain;
 
 use Illuminate\Support\Facades\Facade;
 
-class enqueuer extends Facade {
-	
-	private static $cache = true;
+class enqueuer extends Facade 
+{
 	
 	private static $cacheScripts = true;
 	private static $cacheStyles = true;
@@ -19,6 +18,26 @@ class enqueuer extends Facade {
     protected static function getFacadeAccessor() 
 	{ 
 		return 'enqueuer'; 
+	}
+	
+	public static function configure($options)
+	{
+		$editable = [
+			'cacheScripts',
+			'cacheStyles',
+			'alwaysGenerateStylesCache',
+			'alwaysGenerateScriptsCache'
+		];
+		if(is_array($options))
+		{
+			foreach($editable as $val)
+			{
+				if(isset($options[$val]))
+				{
+					self::${$val} = $options[$val];
+				}
+			}
+		}
 	}
 	
 	private static function getRelativeDependencyOrder($list, $a, $b)
@@ -124,9 +143,9 @@ class enqueuer extends Facade {
 		}
 	}
     
-    private static function hasCache($where)
+    private static function hasCache($where, $context)
 	{
-		$files = \Storage::disk('public')->files('cache/'.$where);
+		$files = \Storage::disk('public')->files('cache/'.$where.'/'.$context);
 		if(is_array($files) && count($files) > 0)
 		{
             return true;

@@ -1,9 +1,10 @@
 # enqueuer
 
 [![Software License](https://img.shields.io/badge/licence-%20GNU%20General%20Public%20License%20v3.0-brightgreen.svg)](LICENSE.md)
-![](https://img.shields.io/badge/version-1.1.1-brightgreen.svg)
+![](https://img.shields.io/badge/version-1.2.0-brightgreen.svg)
 
-Laravel package to enqueue css and js files for load. It supports dependencies, to serve files in the correct order. Caching included.
+Laravel package to enqueue css and js files for load. 
+It supports dependencies, to serve files in the correct order, caching, magic methods and passing along PHP variables.
 
 ## Install
 
@@ -135,6 +136,21 @@ Enqueuer::clearAdminStylesCache();
 
 ```
 
+### Managing settings
+Settings can be overwritten at any time using this snippet:
+``` php
+
+Enqueuer::configure([
+	'cacheScripts' => true,
+	'cacheStyles' => true,
+	'alwaysGenerateStylesCache' => false,
+	'alwaysGenerateScriptsCache' => false
+]);
+
+```
+
+It allows for enabling / disabling cache for scripts and styles, as well as allowing the cache for being regenerated on every request.
+Note, that in order to use it without caching, all enqueued scripts have to be publicly available on the provided url.
 
 
 ## Change log

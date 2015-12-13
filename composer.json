@@ -1,9 +1,12 @@
 {
     "name": "morningtrain/enqueuer",
-    "description": "Laravel package to enqueue css and js files for load. It supports dependencies, to serve files in the correct order. Caching included.",
+    "description": "Laravel package to enqueue css and js files for load. It supports dependencies, caching and passing data to scripts from PHP.",
     "keywords": [
         "morningtrain",
-        "enqueuer"
+        "enqueuer",
+		"laravel",
+		"css",
+		"js"
     ],
     "homepage": "https://github.com/morningtrain/laravel-enqueuer",
     "license": "GNU GPL v3.0",
@@ -26,11 +29,6 @@
     "autoload": {
         "psr-4": {
             "morningtrain\\enqueuer\\": "src"
-        }
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.0-dev"
         }
     }
 }
