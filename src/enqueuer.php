@@ -87,10 +87,10 @@ class enqueuer extends Facade
 	private static function resolveStyleDependencies()
 	{
 		$styles = self::$styles;
-		foreach($styles as $context => $scriptsList)
+		foreach($styles as $context => $list)
 		{
 			$list = self::resolveDependencies($list);
-			$styles[$context] = $scriptsList;
+			$styles[$context] = $list;
 		}
 		self::$styles = $styles;
 	}
@@ -366,11 +366,11 @@ class enqueuer extends Facade
 				{
 					foreach($styles as $style)
 					{
-						if(isset($script['content']))
+						if(isset($style['content']))
 						{
 							$output .= '<style>'.$style['content'].'</style>';
 						}
-						if(isset($script['location']))
+						if(isset($style['location']))
 						{
 							$output .= '<link rel="stylesheet" href="'.$style['location'].'">';
 						}
