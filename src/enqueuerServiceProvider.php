@@ -13,6 +13,15 @@ class enqueuerServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+    }
+
+    /**
+     * Register any package services.
+     *
+     * @return void
+     */
+    public function register()
+    {	
 	
 		//Add the public disk for storing the scripts and styles cache
 		$this->app['config']["filesystems.disks.public"] = [
@@ -25,16 +34,12 @@ class enqueuerServiceProvider extends ServiceProvider
 	
 		//Add alias for the enqueuer facade.
         $loader = \Illuminate\Foundation\AliasLoader::getInstance();
-		$loader->alias('Enqueuer', '\morningtrain\enqueuer');
-    }
-
-    /**
-     * Register any package services.
-     *
-     * @return void
-     */
-    public function register()
-    {	
+		$loader->alias('Enqueuer', '\morningtrain\enqueuer\enqueuer');
+		
+		\App::bind('Enqueuer', function()
+		{
+			return new \morningtrain\enqueuer\enqueuer;
+		});
 		
     }
 }

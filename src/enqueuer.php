@@ -1,5 +1,5 @@
 <?php
-namespace morningtrain;
+namespace morningtrain\enqueuer;
 
 use Illuminate\Support\Facades\Facade;
 
@@ -269,11 +269,11 @@ class enqueuer extends Facade
 	{
 		if($type == 'styles')
 		{
-			return self::$cacheStyles || (self::$alwaysGenerateStylesCache && $hasCache);
+			return self::$cacheStyles || (self::$alwaysGenerateStylesCache);
 		}
 		if($type == 'scripts')
 		{
-			return self::$cacheScripts || (self::$alwaysGenerateScriptsCache && $hasCache);
+			return self::$cacheScripts || (self::$alwaysGenerateScriptsCache);
 		}
 		return false;
 	}
