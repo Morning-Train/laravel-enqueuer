@@ -24,10 +24,13 @@ class enqueuerServiceProvider extends ServiceProvider
     {	
 	
 		//Add the public disk for storing the scripts and styles cache
-		$this->app['config']["filesystems.disks.public"] = [
-			'driver' => 'local',
-			'root'   => public_path(),
-		];
+		if(!isset($this->app['config']["filesystems.disks.public"]))
+		{
+			$this->app['config']["filesystems.disks.public"] = [
+				'driver' => 'local',
+				'root'   => public_path(),
+			];
+		}
 	
 		//Include the enqueuer class
 		require_once 'enqueuer.php';

@@ -2,6 +2,12 @@
 
 All Notable changes to `enqueuer` will be documented in this file
 
+## 1.2.3 - 2016-01-07
+
+### Added
+- Made disk creation in service provider conditional.
+- Added option to choose the storage disk to use as root.
+
 ## 1.2.2 - 2015-12-19
 
 ### Added

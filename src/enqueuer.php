@@ -12,6 +12,8 @@ class enqueuer extends Facade
     private static $alwaysGenerateStylesCache = false;
     private static $alwaysGenerateScriptsCache = false;
 	
+    private static $storageDisk = 'public';
+	
 	private static $scripts = array();
 	private static $styles = array();
 	
@@ -26,7 +28,8 @@ class enqueuer extends Facade
 			'cacheScripts',
 			'cacheStyles',
 			'alwaysGenerateStylesCache',
-			'alwaysGenerateScriptsCache'
+			'alwaysGenerateScriptsCache',
+			'storageDisk'
 		];
 		if(is_array($options))
 		{
@@ -125,27 +128,27 @@ class enqueuer extends Facade
 	
 	private static function clearCache($where)
 	{
-		$files = \Storage::disk('public')->allFiles('cache/'.$where);
+		$files = \Storage::disk(self::$storageDisk)->allFiles('cache/'.$where);
 		if(is_array($files) && count($files) > 0)
 		{
 			foreach($files as $file)
 			{
-				\Storage::disk('public')->delete($file);
+				\Storage::disk(self::$storageDisk)->delete($file);
 			}
 		}
-		$dirs = \Storage::disk('public')->allDirectories('cache/'.$where);
+		$dirs = \Storage::disk(self::$storageDisk)->allDirectories('cache/'.$where);
 		if(is_array($dirs) && count($dirs) > 0)
 		{
 			foreach($dirs as $dir)
 			{
-				\Storage::disk('public')->deleteDirectory($dir);
+				\Storage::disk(self::$storageDisk)->deleteDirectory($dir);
 			}
 		}
 	}
     
     private static function hasCache($where, $context)
 	{
-		$files = \Storage::disk('public')->files('cache/'.$where.'/'.$context);
+		$files = \Storage::disk(self::$storageDisk)->files('cache/'.$where.'/'.$context);
 		if(is_array($files) && count($files) > 0)
 		{
             return true;
@@ -155,7 +158,7 @@ class enqueuer extends Facade
     
     private static function getCache($where)
 	{
-		$files = \Storage::disk('public')->files('cache/'.$where);
+		$files = \Storage::disk(self::$storageDisk)->files('cache/'.$where);
 		if(is_array($files) && count($files) > 0)
 		{
             return $files[0];
@@ -201,7 +204,7 @@ class enqueuer extends Facade
 	
 	private static function cacheFile($name, $content)
 	{
-		$check = \Storage::disk('public')->put($name, $content);
+		$check = \Storage::disk(self::$storageDisk)->put($name, $content);
 	}
 	
 	private static function generateBufferForStyles($files)
