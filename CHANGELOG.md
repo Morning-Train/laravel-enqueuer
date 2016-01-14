@@ -2,6 +2,11 @@
 
 All Notable changes to `enqueuer` will be documented in this file
 
+## 1.2.5 - 2016-01-14
+
+### Added
+- Bugfix
+
 ## 1.2.4 - 2016-01-14
 
 ### Added
