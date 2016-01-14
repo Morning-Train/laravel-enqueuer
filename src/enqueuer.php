@@ -111,7 +111,7 @@ class enqueuer extends Facade
 	{
 		if(isset($arguments['data']) && isset($arguments['data']['object']) && isset($arguments['data']['properties']) && !empty($arguments['data']['object']) && !empty($arguments['data']['properties']))
 		{
-			$content = 'var '.$arguments['data']['object'].' = '.json_encode($arguments['data']['properties']).';'.PHP_EOL;
+			$content = 'if(typeof('.$arguments['data']['object'].') == "undefined"){ var '.$arguments['data']['object'].' = {}; } '.$arguments['data']['object'].' = '.json_encode($arguments['data']['properties']).';'.PHP_EOL;
 			if(!isset($arguments['content']))
 			{
 				$arguments['content'] = '';

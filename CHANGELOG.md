@@ -2,6 +2,11 @@
 
 All Notable changes to `enqueuer` will be documented in this file
 
+## 1.2.4 - 2016-01-14
+
+### Added
+- Data parameters will now extends previous data with same name
+
 ## 1.2.3 - 2016-01-07
 
 ### Added
