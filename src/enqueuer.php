@@ -43,36 +43,89 @@ class enqueuer extends Facade
 		}
 	}
 	
-	private static function getRelativeDependencyOrder($list, $a, $b)
+	
+
+	private static function insertAfterKeys($key, $entity, &$array, $keys)
 	{
-		if(isset($list[$b]['dependencies']) && is_array($list[$b]['dependencies']))
+		$count = -1;
+		foreach ( array_reverse($array) as $index => $value )
 		{
-			if(in_array($a, $list[$b]['dependencies']))
+			$count++;
+			if(in_array($index, $keys))
 			{
-				return -1;
+				$temp = array();
+				foreach($array as $i => $v)
+				{
+					if($i === $key)
+					{
+						continue;
+					}
+					$temp[$i] = $v;
+					if($i === $index)
+					{
+						$temp[$key] = $entity;
+					}
+				}
+				$array = $temp;
+				return;
 			}
 		}
-		if(isset($list[$a]['dependencies']) && is_array($list[$a]['dependencies']))
+	}
+
+	private static function isAfterKeys($key, $keys, $array)
+	{
+		foreach($array as $index => $value)
 		{
-			if(in_array($b, $list[$a]['dependencies']))
+			if($index === $key)
 			{
-				return 1;
+				return false;
+			}
+			if(in_array($index, $keys))
+			{
+				unset($keys[array_search($index, $keys)]);
+			}
+			if(empty($keys))
+			{
+				return true;
 			}
 		}
-		return 0;
+		return true;
 	}
 	
 	private static function resolveDependencies($list)
 	{
-		uksort($list, function($a, $b) use ($list){
-			return self::getRelativeDependencyOrder($list, $a, $b);
-		});
-		uksort($list, function($a, $b) use ($list){
-			return self::getRelativeDependencyOrder($list, $a, $b);
-		});
-		uksort($list, function($a, $b) use ($list){
-			return self::getRelativeDependencyOrder($list, $a, $b);
-		});
+		if(!empty($list))
+		{
+			$count = 0;
+			$i = 0;
+			$dependenciesAreResolved = false;
+			while ($dependenciesAreResolved === false)
+			{
+				$foundWrongDependencies = false;
+				$count++;
+				foreach($list as $slug => $entity)
+				{
+					$i++;
+					if(isset($entity['dependencies']) && !empty($entity['dependencies']))
+					{
+						$dependencies = $entity['dependencies'];
+						if(!self::isAfterKeys($slug, $dependencies, $list))
+						{
+							$foundWrongDependencies = true;
+							self::insertAfterKeys($slug, $entity, $list, $dependencies);
+						}
+					}
+				}
+				if(!$foundWrongDependencies)
+				{
+					break;
+				}
+				if($count > 100)
+				{
+					break;
+				}
+			}
+		}
 		return $list;
 	}
 	

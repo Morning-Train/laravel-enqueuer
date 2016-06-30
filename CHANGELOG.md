@@ -2,6 +2,11 @@
 
 All Notable changes to `enqueuer` will be documented in this file
 
+## 1.2.6 - 2016-06-30
+
+### Added
+- Dependency sorting rewrite
+
 ## 1.2.5 - 2016-01-14
 
 ### Added
